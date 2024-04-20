@@ -3,6 +3,7 @@ import os
 import datetime
 import time
 
+from torchinfo import summary
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -575,6 +576,9 @@ class DAMP(TrainerXU):
         self.register_model("context_decoder", self.model.context_decoder,
                                     self.optim_c, self.sched_c)
 
+        print("Model:", summary(self.model, input_size=(32, 3, 224, 224)))
+        for name, param in self.model.named_parameters():
+            print(f"name: {name}, shape {param.shape}, require grad: {param.requires_grad}")
         self.scaler = GradScaler() if cfg.TRAINER.DAMP.PREC == "amp" else None
 
         
@@ -693,7 +697,7 @@ class DAMP(TrainerXU):
 
     def forward_backward(self, batch_x, batch_u):
         # label_u only used for matric
-        breakpoint()
+        # breakpoint()
         image_x, image_x2, label, image_u, image_u2, label_u = self.parse_batch_train(batch_x, batch_u)
         prec = self.cfg.TRAINER.DAMP.PREC
         if prec == "amp":
