@@ -98,7 +98,7 @@ def train(domain_list, classnames, clip_model, preprocess, args):
     for target_name in domain_list:
         print("*" * 50)
         print("Start training on {}".format(target_name))
-        # if target_name not in ['real', 'sketch']:
+        # if target_name not in ['sketch', 'quickdraw']:
         #     continue
         source_name_list = domain_list.copy()
         source_name_list.remove(target_name)

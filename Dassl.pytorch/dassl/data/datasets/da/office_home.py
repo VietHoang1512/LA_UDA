@@ -40,6 +40,7 @@ class OfficeHome(DatasetBase):
 
     def _read_data(self, input_domains):
         items = []
+        counter = {dname: 0 for dname in input_domains}
 
         for domain, dname in enumerate(input_domains):
             domain_dir = osp.join(self.dataset_dir, dname)
@@ -59,5 +60,6 @@ class OfficeHome(DatasetBase):
                         classname=class_name.lower(),
                     )
                     items.append(item)
-
+                    counter[dname] += 1
+        print("Data statistic", counter)
         return items

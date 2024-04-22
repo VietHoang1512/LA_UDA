@@ -17,8 +17,8 @@ nvidia-smi
 
 cd /scratch/hvp2011/implement/UDA/mpa_code
 
-# python main.py --data_root /vast/hvp2011/data/image-clef --dataset ImageCLEF >> imageclef.log
+python main.py --data_root /vast/hvp2011/data/image-clef --dataset ImageCLEF --radius .0 
 # python main.py --data_root /vast/hvp2011/data/office_home/ --dataset OfficeHome
-python main.py --data_root /vast/hvp2011/data/domainnet/ --dataset DomainNet
+# python main.py --data_root /vast/hvp2011/data/domainnet/ --dataset DomainNet
 # python main.py --data_root /vast/hvp2011/data/office-31/ --dataset Office31
 

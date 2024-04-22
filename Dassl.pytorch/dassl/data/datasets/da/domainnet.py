@@ -45,7 +45,7 @@ class DomainNet(DatasetBase):
 
     def _read_data(self, input_domains, split="train"):
         items = []
-
+        counter = {dname: 0 for dname in input_domains}
         for domain, dname in enumerate(input_domains):
             filename = dname + "_" + split + ".txt"
             split_file = osp.join(self.split_dir, filename)
@@ -65,5 +65,6 @@ class DomainNet(DatasetBase):
                         classname=classname
                     )
                     items.append(item)
-
+                    counter[dname] += 1
+        print("Data statistic", counter)
         return items
