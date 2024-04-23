@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import tqdm
 import sys
-
+import matplotlib.pyplot as plt
 
 from torchinfo import summary
 import torch
@@ -67,7 +67,6 @@ def entropy_loss(logits):
     loss = -torch.sum(p * log_p, dim=-1)
     return loss.mean()
 
-
 def args_update(args):
     if args.dataset == "ImageCLEF":
         args.backbone = "RN50"
@@ -85,6 +84,9 @@ def args_update(args):
         args.backbone = "RN50"
         args.prompt_iteration = 1000
 
+    if args.dataset == "PACS":
+        args.backbone = "RN18"
+        args.prompt_iteration = 800
 
 def test(target_test_loader, custom_clip_model, prompt_list, tokenized_prompts, args):
     scale = custom_clip_model.logit_scale.exp()
@@ -122,16 +124,19 @@ def train(domain_list, classnames, clip_model, preprocess, args):
     custom_clip_model = Custom_Clip(clip_model)
     custom_clip_model = nn.DataParallel(custom_clip_model)
     custom_clip_model = custom_clip_model.module
-
+    
+    cos = nn.CosineSimilarity(dim=0, eps=1e-6)
+    
     for name, param in custom_clip_model.named_parameters():
         param.requires_grad_(False)
     print("Custom_Clip", summary(custom_clip_model))
+    best_accs = []
     for target_name in domain_list:
         print("*" * 50)
         print("Start training on {}".format(target_name))
         source_name_list = domain_list.copy()
         source_name_list.remove(target_name)
-
+        
         if not os.path.exists(os.path.join(args.output_dir, target_name)):
             os.makedirs(os.path.join(args.output_dir, target_name))
 
@@ -173,6 +178,9 @@ def train(domain_list, classnames, clip_model, preprocess, args):
                 f"name: {name}, shape {param.shape}, require grad: {param.requires_grad}"
             )
         best_acc = 0
+        n_conflict = 0
+        grad_cosine = []
+        running_avg_cosine = 0
         pbar = tqdm.tqdm(range(1, args.prompt_iteration + 1))
         for step in pbar:
             source_prompts, target_prompts = prompt_learner()
@@ -234,6 +242,12 @@ def train(domain_list, classnames, clip_model, preprocess, args):
             source_grad = prompt_learner.get_source_grad()
             shared_grad_src = prompt_learner.get_shared_grad()
             
+            similarity = cos(shared_grad_src, shared_grad_tgt).item()
+            running_avg_cosine = step/(step+1) * running_avg_cosine + 1/(step+1) * similarity
+            
+            grad_cosine.append(running_avg_cosine)
+            n_conflict += similarity < 0      
+                  
             # loss 1, stage 2 #
             perturbed_target_param = target_param + args.radius * target_grad / (
                 torch.norm(target_grad) + 1e-12
@@ -315,7 +329,7 @@ def train(domain_list, classnames, clip_model, preprocess, args):
             )
             if acc > best_acc:
                 best_acc = acc
-                print("Best accuracy so far: {}".format(best_acc))
+            print(f"Best accuracy so far: {best_acc}, step {step}, accuracy {acc}")
             prompt_list = [source_prompts, target_prompts]
             acc = test(
                 target_test_loader,
@@ -329,7 +343,26 @@ def train(domain_list, classnames, clip_model, preprocess, args):
             )
             if acc > best_acc:
                 best_acc = acc
-                print("Best accuracy so far: {}".format(best_acc))
+            print(f"Best accuracy so far: {best_acc}, step {step}, accuracy {acc}")
+        best_accs.append(best_acc)
+        print("Best accuracy for each domain:", best_accs, "Average:", np.mean(best_accs))
+        print("Number of conflicts:", n_conflict, "Total steps:", args.prompt_iteration, "Conflict rate:", n_conflict/args.prompt_iteration)
+        print("Average cosine similarity between gradients:", np.mean(grad_cosine))
+        print("Cosine similarity between gradients:", grad_cosine)
+        
+        # plot cosine similarity per step #
+        plt.plot(grad_cosine)
+        plt.xlabel("Step")
+        plt.ylabel("Cosine similarity")
+        plt.title("Cosine similarity between gradients")
+        plt.savefig(os.path.join(args.output_dir, f"cosine_similarity_{target_name}.png"))
+        plt.show()
+        plt.close()
+    
+    
+    
+    
+    
 
 
 def main(args):
