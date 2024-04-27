@@ -134,12 +134,20 @@ def train(domain_list, classnames, clip_model, preprocess, args):
     for target_name in domain_list:
         print("*" * 50)
         print("Start training on {}".format(target_name))
+        if target not in ['real', 'sketch',]:
+            continue
+        tgt_save_path = os.path.join(args.output_dir, target_name)
+        os.makedirs(tgt_save_path, exist_ok=True)
+        result_path = os.path.join(tgt_save_path, "best_accuracy.txt")
+        if os.path.exists(result_path):
+            continue
+        orig_stdout = sys.stdout
+        f = open(tgt_save_path+ "/train.log", "w+")
+        sys.stdout = f
+
         source_name_list = domain_list.copy()
         source_name_list.remove(target_name)
         
-        if not os.path.exists(os.path.join(args.output_dir, target_name)):
-            os.makedirs(os.path.join(args.output_dir, target_name))
-
         # target_path = os.path.join(args.data_root, args.dataset, target_name)
         target_path = os.path.join(args.data_root, target_name)
 
@@ -316,20 +324,27 @@ def train(domain_list, classnames, clip_model, preprocess, args):
             if step % (args.prompt_iteration / 20) == 0:
                 scheduler.step()
 
-            prompt_list = [target_prompts]
-            acc = test(
-                target_test_loader,
-                custom_clip_model,
-                prompt_list,
-                tokenized_prompts,
-                args,
-            )
-            pbar.set_description(
-                f"step: {step}, accuracy: {acc}, target total loss: {target_loss.item()}, classification: {target_cls_loss.item()}, entropy: {target_entropy_loss.item()}"
-            )
-            if acc > best_acc:
-                best_acc = acc
-            print(f"Best accuracy so far: {best_acc}, step {step}, accuracy {acc}")
+            # prompt_list = [target_prompts]
+            # acc = test(
+            #     target_test_loader,
+            #     custom_clip_model,
+            #     prompt_list,
+            #     tokenized_prompts,
+            #     args,
+            # )
+            # pbar.set_description(
+            #     f"step: {step}, accuracy: {acc}, target total loss: {target_loss.item()}, classification: {target_cls_loss.item()}, entropy: {target_entropy_loss.item()}"
+            # )
+            # if acc > best_acc:
+            #     best_acc = acc
+            # print(f"Best accuracy so far: {best_acc}, step {step}, accuracy {acc}")
+            if args.dataset == "DomainNet":
+                if step < 1000:
+                    if step%500:
+                        continue
+                else:
+                    if step%10:
+                        continue
             prompt_list = [source_prompts, target_prompts]
             acc = test(
                 target_test_loader,
@@ -349,15 +364,27 @@ def train(domain_list, classnames, clip_model, preprocess, args):
         print("Number of conflicts:", n_conflict, "Total steps:", args.prompt_iteration, "Conflict rate:", n_conflict/args.prompt_iteration)
         print("Average cosine similarity between gradients:", np.mean(grad_cosine))
         print("Cosine similarity between gradients:", grad_cosine)
+        sys.stdout = orig_stdout
+        f.close()
+
+            
         
         # plot cosine similarity per step #
         plt.plot(grad_cosine)
         plt.xlabel("Step")
         plt.ylabel("Cosine similarity")
         plt.title("Cosine similarity between gradients")
-        plt.savefig(os.path.join(args.output_dir, f"cosine_similarity_{target_name}.png"))
+        plt.savefig( f"{tgt_save_path}/cosine_similarity.png")
         plt.show()
         plt.close()
+        # write cosine similarity to file #
+        with open(f"{tgt_save_path}/cosine_similarity.txt", "w+") as f:
+            f.write("\n****\n")
+            for item in grad_cosine:
+                f.write("%s\n" % item)
+        # write best accuracy to file #
+        with open(result_path, "w+") as f:
+                f.write("%s\n" % best_acc)
     
     
     
@@ -393,15 +420,11 @@ def main(args):
     ).replace("(", "").replace(")", "").replace("Namespace", "")
 
     print("Output directory:", args.output_dir)
-    os.system("rm -rf " + args.output_dir)
+    # os.system("rm -rf " + args.output_dir)
     os.makedirs(args.output_dir, exist_ok=True)
-    orig_stdout = sys.stdout
-    f = open(args.output_dir + "/train.log", "w+")
-    sys.stdout = f
+
     args.n_cls = n_cls
     train(domain_list, classnames, model, preprocess, args)
-    sys.stdout = orig_stdout
-    f.close()
 
 
 if __name__ == "__main__":

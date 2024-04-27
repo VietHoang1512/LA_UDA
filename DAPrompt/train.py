@@ -13,6 +13,7 @@ from dassl.data.datasets import OfficeHome
 
 import trainers.dapl
 import trainers.lapa 
+import trainers.lampa
 
 
 def print_args(args, cfg):
@@ -86,6 +87,19 @@ def extend_cfg(cfg):
     cfg.TRAINER.LAPA.radius = 0.
     cfg.TRAINER.LAPA.align = 0.
     cfg.TRAINER.LAPA.tradeoff = 0.
+    
+    cfg.TRAINER.LAMPA = CN()
+    cfg.TRAINER.LAMPA.N_DMX = 16  # number of DSC tokens
+    cfg.TRAINER.LAMPA.N_CTX = 16  # number of context vectors
+    cfg.TRAINER.LAMPA.CSC = False  # class-specific context
+    cfg.TRAINER.LAMPA.PREC = "fp16"  # fp16, fp32, amp
+    cfg.TRAINER.LAMPA.T = 1.0
+    cfg.TRAINER.LAMPA.TAU = 0.5
+    cfg.TRAINER.LAMPA.U = 1.0
+    cfg.TRAINER.LAMPA.radius = 0.
+    cfg.TRAINER.LAMPA.align = 0.
+    cfg.TRAINER.LAMPA.tradeoff = 0.        
+    
     cfg.TRAINER.DAPL = CN()
     cfg.TRAINER.DAPL.N_DMX = 16  # number of DSC tokens
     cfg.TRAINER.DAPL.N_CTX = 16  # number of context vectors
