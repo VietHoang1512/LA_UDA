@@ -389,9 +389,8 @@ class LAMPA(TrainerXU):
             self.before_epoch()
             self.run_epoch()
             self.after_epoch()
-            if self.cfg.DATASET.NAME=="OfficeHome":
-                if self.epoch>100:
-                    break
+            if self.epoch>50:
+                break
         self.after_train()
 
     def run_epoch(self):

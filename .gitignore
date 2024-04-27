@@ -2,7 +2,7 @@
 **/output
 **/logs
 **/assets
-**/ouputs
+**/outputs
 *.pdf 
 *.npy
 **/snapshot

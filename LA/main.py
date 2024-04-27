@@ -134,7 +134,7 @@ def train(domain_list, classnames, clip_model, preprocess, args):
     for target_name in domain_list:
         print("*" * 50)
         print("Start training on {}".format(target_name))
-        if target not in ['real', 'sketch',]:
+        if target_name not in ['real', 'sketch',]:
             continue
         tgt_save_path = os.path.join(args.output_dir, target_name)
         os.makedirs(tgt_save_path, exist_ok=True)

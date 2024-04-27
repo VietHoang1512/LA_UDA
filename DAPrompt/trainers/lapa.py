@@ -387,6 +387,8 @@ class LAPA(TrainerXU):
             self.before_epoch()
             self.run_epoch()
             self.after_epoch()
+            if self.epoch>50:
+                break
         self.after_train()
 
     def run_epoch(self):
