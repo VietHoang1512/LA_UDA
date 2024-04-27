@@ -23,9 +23,9 @@ cd /scratch/hvp2011/implement/UDA/LA/
 # radius=${args[0]}
 # tradeoff=${args[1]}
 # align=${args[2]}
-radius=0.001
+radius=0.0003
 align=1.0
-tradeoff=3.
+tradeoff=1.
 # python main.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/image-clef --dataset ImageCLEF
 # python main_uda.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/image-clef --dataset ImageCLEF
 

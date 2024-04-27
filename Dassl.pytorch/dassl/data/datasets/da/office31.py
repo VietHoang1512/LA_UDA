@@ -21,7 +21,7 @@ class Office31(DatasetBase):
         new domains. ECCV 2010.
     """
 
-    dataset_dir = "office31"
+    dataset_dir = "office-31"
     domains = ["amazon", "webcam", "dslr"]
 
     def __init__(self, cfg):

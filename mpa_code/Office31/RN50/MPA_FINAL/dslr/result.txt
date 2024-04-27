@@ -1,2 +1,0 @@
-Accuracy is 0.7604166666666666
-Accuracy is 0.76875
