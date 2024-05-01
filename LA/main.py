@@ -134,7 +134,7 @@ def train(domain_list, classnames, clip_model, preprocess, args):
     for target_name in domain_list:
         print("*" * 50)
         print("Start training on {}".format(target_name))
-        if target_name not in ['real', 'sketch',]:
+        if target_name not in ['quickdraw']:
             continue
         tgt_save_path = os.path.join(args.output_dir, target_name)
         os.makedirs(tgt_save_path, exist_ok=True)
@@ -339,7 +339,7 @@ def train(domain_list, classnames, clip_model, preprocess, args):
             #     best_acc = acc
             # print(f"Best accuracy so far: {best_acc}, step {step}, accuracy {acc}")
             if args.dataset == "DomainNet":
-                if step < 1000:
+                if step < 3000:
                     if step%500:
                         continue
                 else:

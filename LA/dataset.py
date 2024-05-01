@@ -156,6 +156,45 @@ class SingleSourceDataset(DatasetBase):
         return img, item.label
 
 
+class MultiSourceDataset(DatasetBase):
+    
+    def __init__(self, data_root, source_name_list, transform=None):
+        self.dataset_dir = data_root
+        data = self._read_data(source_name_list)
+        self.transform = transform
+        super().__init__(data=data)
+
+    def _read_data(self, input_domains):
+        items = []
+        counter = {dname: 0 for dname in input_domains}
+        for domain, dname in enumerate(input_domains):
+            domain_dir = osp.join(self.dataset_dir, dname)
+            class_names = listdir_nohidden(domain_dir)
+            class_names.sort()
+
+            for label, class_name in enumerate(class_names):
+                class_path = osp.join(domain_dir, class_name)
+                imnames = listdir_nohidden(class_path)
+
+                for imname in imnames:
+                    impath = osp.join(class_path, imname)
+                    item = Datum(
+                        impath=impath, label=label, domain=domain, classname=class_name
+                    )
+                    items.append(item)
+                    counter[dname] += 1
+        print("Data statistic", counter)
+        return items
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        item = self.data[idx]
+        img0 = read_image(item.impath)
+        img = self.transform(img0)
+        return img, item.label, item.domain
+
 def read_image(path):
     """Read image from path using ``PIL.Image``.
 

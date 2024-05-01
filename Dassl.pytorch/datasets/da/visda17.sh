@@ -8,11 +8,11 @@
 # $ sh visda17.sh $DATA
 #------------------------------------------------------------------------
 
-ROOT=$1
+ROOT=/vast/yk2516//data
 mkdir $ROOT/visda17
 cd $ROOT/visda17
 
-wget http://csr.bu.edu/ftp/visda17/clf/train.tar
+# wget http://csr.bu.edu/ftp/visda17/clf/train.tar
 tar xvf train.tar
 
 wget http://csr.bu.edu/ftp/visda17/clf/validation.tar

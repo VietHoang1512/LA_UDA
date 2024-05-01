@@ -627,14 +627,14 @@ class LAMPA(TrainerXU):
                                 self.cfg.TRAIN.CHECKPOINT_FREQ > 0 else False)
 
         if do_test:
-            print("Testing the test prompt")
-            curr_result = self.test(ensemble=False)
-            is_best = curr_result > self.best_result
-            if is_best:
-                self.best_result = curr_result
-                self.save_model(self.epoch,
-                                self.output_dir,
-                                model_name="model-best.pth.tar")
+            # print("Testing the test prompt")
+            # curr_result = self.test(ensemble=False)
+            # is_best = curr_result > self.best_result
+            # if is_best:
+            #     self.best_result = curr_result
+            #     self.save_model(self.epoch,
+            #                     self.output_dir,
+            #                     model_name="model-best.pth.tar")
             print("Testing the ensemble prompt")
             curr_result = self.test(ensemble=True)
             is_best = curr_result > self.best_result

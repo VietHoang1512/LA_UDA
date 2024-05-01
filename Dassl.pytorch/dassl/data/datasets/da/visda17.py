@@ -17,7 +17,7 @@ class VisDA17(DatasetBase):
         Challenge. ArXiv 2017.
     """
 
-    dataset_dir = "visda17"
+    dataset_dir = "visda-2017"
     domains = ["synthetic", "real"]
 
     def __init__(self, cfg):
