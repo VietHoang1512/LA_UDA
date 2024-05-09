@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --time=48:00:00
+#SBATCH --time=100:00:00
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=180GB
@@ -23,22 +23,27 @@ cd /scratch/hvp2011/implement/UDA/LA/
 # radius=${args[0]}
 # tradeoff=${args[1]}
 # align=${args[2]}
-radius=0.0003
+radius=0.001
 align=10.0
-tradeoff=1.
+tradeoff=10.
 
 
 # python main.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/image-clef --dataset ImageCLEF
 
+for tradeoff in  10 3 1 .3
+do
+python main_multi.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/image-clef --dataset ImageCLEF
+done
 
 # python main.py  --entropy_tradeoff .0 --radius .0001 --tradeoff .1 --align .0 --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/image-clef --dataset ImageCLEF
 
 # python main.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/office_home/ --dataset OfficeHome
 
 # python main_uda.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/office_home/ --dataset OfficeHome
+# python main_multi.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/office_home/ --dataset OfficeHome
 
 # python main.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/domainnet/ --dataset DomainNet
-python main_multi.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/domainnet/ --dataset DomainNet
+# python main_multi.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/domainnet/ --dataset DomainNet
 
 # python main.py  --entropy_tradeoff .0 --radius $radius --tradeoff $tradeoff --align $align --M1 16 --M2 16 --threshold .4 --data_root /vast/hvp2011/data/PACS --dataset PACS
 

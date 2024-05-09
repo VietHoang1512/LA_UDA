@@ -134,8 +134,12 @@ def train(domain_list, classnames, clip_model, preprocess, args):
     for target_name in domain_list:
         print("*" * 50)
         print("Start training on {}".format(target_name))
-        if target_name  in ['b']:
-            continue
+        if args.dataset == "DomainNet":
+            if target_name not in ['real']:
+                continue
+        if args.dataset == "ImageCLEF":
+            if target_name=="b":
+                continue
         tgt_save_path = os.path.join(args.output_dir, target_name)
         os.makedirs(tgt_save_path, exist_ok=True)
         result_path = os.path.join(tgt_save_path, "best_accuracy.txt")
@@ -261,7 +265,7 @@ def train(domain_list, classnames, clip_model, preprocess, args):
 
             perturbed_shared_param = shared_param + args.radius * shared_grad_tgt / (
                 torch.norm(shared_grad_tgt) + 1e-12
-            ) - args.align * shared_grad_src/(torch.norm(shared_grad_src)*torch.norm(shared_grad_tgt) + 1e-12)
+            ) - args.align * sum([shared_grad_src/(torch.norm(shared_grad_src)*torch.norm(shared_grad_tgt) + 1e-12) for shared_grad_src in shared_grad_srcs])
             
             prompt_learner.set_shared_param(perturbed_shared_param)
             
