@@ -38,6 +38,8 @@ def make_dataset(target_name, path, clip_model, transform, args):
     instances = []
     correct = 0
     tot = 0
+    per_class_correct = {class_name: 0 for class_name in class_list}
+    per_class_tot = {class_name: 0 for class_name in class_list}
     with torch.no_grad():
         print("Generating pseudo labels for {} data".format(target_name))
         for image, label in tqdm.tqdm(data_loader):
@@ -50,6 +52,11 @@ def make_dataset(target_name, path, clip_model, transform, args):
 
             pseudo_label = np.argmax(probs, axis=1)
 
+            for i in range(pseudo_label.shape[0]):
+                per_class_correct[class_list[pseudo_label[i]]] += (
+                    pseudo_label[i] == label[i]
+                )
+                per_class_tot[class_list[label[i]]] += 1
             tot += image.shape[0]
 
             correct += np.count_nonzero(pseudo_label == label)
@@ -65,6 +72,12 @@ def make_dataset(target_name, path, clip_model, transform, args):
                     instances.append(item)
 
     print(f"pseudo label correct rate is {correct/tot}")
+    per_class_acc = [per_class_correct[class_name]/per_class_tot[class_name] for class_name in class_list]
+    print("Mean per class correct rate is {}".format(np.mean(per_class_acc)))
+    
+    for class_name in class_list:
+        print(f"pseudo label accuracy for {class_name} is {per_class_correct[class_name]/per_class_tot[class_name]}")
+        
     return instances
 
 

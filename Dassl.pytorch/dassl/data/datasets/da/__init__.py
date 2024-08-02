@@ -6,3 +6,5 @@ from .domainnet import DomainNet
 from .office_home import OfficeHome
 from .mini_domainnet import miniDomainNet
 from .image_clef import ImageCLEF
+from .S2RDA49 import S2RDA49
+from .S2RDAMS39 import S2RDAMS39

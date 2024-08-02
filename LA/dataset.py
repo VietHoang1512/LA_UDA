@@ -131,7 +131,7 @@ class SingleSourceDataset(DatasetBase):
             domain_dir = osp.join(self.dataset_dir, dname)
             class_names = listdir_nohidden(domain_dir)
             class_names.sort()
-
+            print("class_names", class_names)
             for label, class_name in enumerate(class_names):
                 class_path = osp.join(domain_dir, class_name)
                 imnames = listdir_nohidden(class_path)

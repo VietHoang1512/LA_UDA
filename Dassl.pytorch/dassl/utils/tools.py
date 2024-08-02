@@ -28,6 +28,7 @@ __all__ = [
     "get_most_similar_str_to_a_from_b",
     "check_availability",
     "tolist_if_not",
+    "listfiles_nohidden",
 ]
 
 
@@ -143,7 +144,23 @@ def listdir_nohidden(path, sort=False):
     if sort:
         items.sort()
     return items
+def listfiles_nohidden(path, sort=False):
+    """List non-hidden files in a directory, ignoring directories.
 
+    Args:
+         path (str): directory path.
+         sort (bool): sort the items.
+    
+    Returns:
+        list: A list of non-hidden files.
+    """
+    # List all non-hidden files, ignoring directories
+    files = [file for file in os.listdir(path) if not file.startswith('.') and os.path.isfile(os.path.join(path, file))]
+    
+    # Optionally sort the files alphabetically
+    if sort:
+        files.sort()
+    return files
 
 def get_most_similar_str_to_a_from_b(a, b):
     """Return the most similar string to a in b.

@@ -71,6 +71,11 @@ def args_update(args):
     if args.dataset == "ImageCLEF":
         args.backbone = "RN50"
         args.prompt_iteration = 400
+        
+    if args.dataset == "S2RDA":
+        # Debugging
+        args.backbone = "RN50"
+        args.prompt_iteration = 0
 
     if args.dataset == "Office31":
         args.backbone = "RN50"
@@ -88,6 +93,22 @@ def args_update(args):
         args.backbone = "RN18"
         args.prompt_iteration = 800
 
+    if args.dataset == "ViT_ImageCLEF":
+        args.backbone = "ViT-B/16"
+        args.prompt_iteration = 400
+    
+    if args.dataset == "ViT_OfficeHome":
+        args.backbone = "ViT-B/16"
+        args.prompt_iteration = 1000
+
+    if args.dataset == "ViTL_ImageCLEF":
+        args.backbone = "ViT-L/14"
+        args.prompt_iteration = 400
+    
+    if args.dataset == "ViTL_OfficeHome":
+        args.backbone = "ViT-L/14"
+        args.prompt_iteration = 1000
+        
 def test(target_test_loader, custom_clip_model, prompt_list, tokenized_prompts, args):
     scale = custom_clip_model.logit_scale.exp()
 
@@ -102,6 +123,7 @@ def test(target_test_loader, custom_clip_model, prompt_list, tokenized_prompts, 
             tot_logits = 0
 
             # TODO: test on multiple prompts
+            
             for prompt in prompt_list:
                 img_feature, txt_feature = custom_clip_model(
                     data, prompt, tokenized_prompts
@@ -134,7 +156,10 @@ def train(domain_list, classnames, clip_model, preprocess, args):
     for target_name in domain_list:
         print("*" * 50)
         print("Start training on {}".format(target_name))
-        if target_name not in ['quickdraw']:
+        # if args.dataset == "DomainNet":
+        #     if target_name not in ['quickdraw']:
+        #         continue
+        if target_name=="b":
             continue
         tgt_save_path = os.path.join(args.output_dir, target_name)
         os.makedirs(tgt_save_path, exist_ok=True)
@@ -404,7 +429,7 @@ def main(args):
     torch.backends.cudnn.deterministic = True
 
     model, preprocess = clip.load(args.backbone, device=args.device)
-
+    model.float()
     domain_list = os.listdir(args.data_root)
 
     domain_list = [x for x in domain_list if ".txt" not in x]
@@ -415,7 +440,7 @@ def main(args):
     n_cls = len(classnames)
     classnames.sort()
 
-    args.output_dir = "outputs/" + str(args).replace(", ", "/").replace(
+    args.output_dir = "outputs/rebuttal/single/" + str(args).replace(", ", "/").replace(
         "'", ""
     ).replace("(", "").replace(")", "").replace("Namespace", "")
 

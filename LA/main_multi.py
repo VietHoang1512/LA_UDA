@@ -87,7 +87,23 @@ def args_update(args):
     if args.dataset == "PACS":
         args.backbone = "RN18"
         args.prompt_iteration = 800
-
+    
+    if args.dataset == "ViT_ImageCLEF":
+        args.backbone = "ViT-B/16"
+        args.prompt_iteration = 400
+    
+    if args.dataset == "ViT_OfficeHome":
+        args.backbone = "ViT-B/16"
+        args.prompt_iteration = 1000
+    
+    if args.dataset == "ViTL_ImageCLEF":
+        args.backbone = "ViT-L/14"
+        args.prompt_iteration = 400
+    
+    if args.dataset == "ViTL_OfficeHome":
+        args.backbone = "ViT-L/14"
+        args.prompt_iteration = 1000        
+        
 def test(target_test_loader, custom_clip_model, prompt_list, tokenized_prompts, args):
     scale = custom_clip_model.logit_scale.exp()
 
@@ -135,11 +151,10 @@ def train(domain_list, classnames, clip_model, preprocess, args):
         print("*" * 50)
         print("Start training on {}".format(target_name))
         if args.dataset == "DomainNet":
-            if target_name not in ['real']:
+            if target_name not in ['quickdraw']:
                 continue
-        if args.dataset == "ImageCLEF":
-            if target_name=="b":
-                continue
+        if target_name=="b":
+            continue
         tgt_save_path = os.path.join(args.output_dir, target_name)
         os.makedirs(tgt_save_path, exist_ok=True)
         result_path = os.path.join(tgt_save_path, "best_accuracy.txt")
@@ -353,7 +368,7 @@ def train(domain_list, classnames, clip_model, preprocess, args):
             #     best_acc = acc
             # print(f"Best accuracy so far: {best_acc}, step {step}, accuracy {acc}")
             if args.dataset == "DomainNet":
-                if step < 2500:
+                if step < 3000:
                     if step%500:
                         continue
                 else:
@@ -421,7 +436,7 @@ def main(args):
     torch.backends.cudnn.deterministic = True
 
     model, preprocess = clip.load(args.backbone, device=args.device)
-
+    model.float()
     domain_list = os.listdir(args.data_root)
 
     domain_list = [x for x in domain_list if ".txt" not in x]
@@ -432,7 +447,7 @@ def main(args):
     n_cls = len(classnames)
     classnames.sort()
 
-    args.output_dir = "outputs/multi/" + str(args).replace(", ", "/").replace(
+    args.output_dir = "outputs/rebuttal/multi/" + str(args).replace(", ", "/").replace(
         "'", ""
     ).replace("(", "").replace(")", "").replace("Namespace", "")
 
